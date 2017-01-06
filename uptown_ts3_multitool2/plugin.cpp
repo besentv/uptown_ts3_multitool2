@@ -18,7 +18,7 @@
 #include "ResetFunctions.h"
 
 #define PLUGIN_API_VERSION 21
-#define PLUGIN_VERSION "Beta 1.5.0"
+#define PLUGIN_VERSION "Beta 1.5.2"
 
 #ifdef _WIN32
 #define _strcpy(dest, destSize, src) strcpy_s(dest, destSize, src)
@@ -166,19 +166,26 @@ void ts3plugin_onClientKickFromServerEvent(uint64 serverConnectionHandlerID, any
 	unsigned short port = 0;
 	char *string = NULL;
 	char *ownName = NULL;
+	anyID ownID;
 
 	if ((error = ts3Functions.getServerConnectInfo(serverConnectionHandlerID, cHost, &port, pw, INFODATA_BUFSIZE)) == ERROR_ok) {
-		printf("Kicked from -> Host: %s - Port: %u - Password: %s\n", cHost, port, pw);
 	}
+
 	if (isAntiServerKick) {
-		if (error = ts3Functions.getClientSelfVariableAsString(serverConnectionHandlerID, CLIENT_UNIQUE_IDENTIFIER, &string) == ERROR_ok) {
 
-			if (error = ts3Functions.getClientSelfVariableAsString(serverConnectionHandlerID, CLIENT_NICKNAME, &ownName) == ERROR_ok) {
-				lastscH = serverConnectionHandlerID;
-				reconnect(serverConnectionHandlerID, clientID, oldChannelID, string, cHost, port, ownName, pw);
+			if (error = ts3Functions.getClientSelfVariableAsString(serverConnectionHandlerID, CLIENT_UNIQUE_IDENTIFIER, &string) == ERROR_ok) {
 
-				printf("UID: %sEND\n", string);
-			}
+				if (error = ts3Functions.getClientSelfVariableAsString(serverConnectionHandlerID, CLIENT_NICKNAME, &ownName) == ERROR_ok) {
+
+					if (error = ts3Functions.getClientID(serverConnectionHandlerID, &ownID) == ERROR_ok) {
+
+						if (ownID == 0) {
+							printf("Kicked from -> Host: %s - Port: %u - Password: %s\n", cHost, port, pw);
+							reconnect(serverConnectionHandlerID, clientID, oldChannelID, string, cHost, port, ownName, pw);
+						}
+					}
+				}
+
 		}
 	}
 	free(ownName);
@@ -193,8 +200,6 @@ void ts3plugin_onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int 
 		unsigned short port = 0;
 		anyID ownID = 0;
 
-		ts3Functions.printMessageToCurrentTab("TEST");
-
 		if ((error = ts3Functions.getServerConnectInfo(serverConnectionHandlerID, cHost, &port, pw, INFODATA_BUFSIZE)) == ERROR_ok) {
 			printf("Connected to -> Host: %s - Port: %u - Password: %s\n", cHost, port, pw);
 		}
@@ -202,10 +207,8 @@ void ts3plugin_onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int 
 
 			if (error = ts3Functions.getClientID(serverConnectionHandlerID, &ownID) == ERROR_ok) {
 
-				printf("Own id:%u\n", ownID);
-
-				if (error = ts3Functions.requestClientMove(serverConnectionHandlerID, ownID, lastChannelID, "", "") != ERROR_ok) {
-					printf("ERROR NO5:%u", error);
+				if (error = ts3Functions.requestClientMove(serverConnectionHandlerID, ownID, lastChannelID, "", "") == ERROR_ok) {
+					printf("Reconncecting complete.");
 				}
 			}
 

@@ -1,4 +1,4 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -54,30 +54,10 @@ void moveBack(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChanne
 
 
 void reconnect(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, const char* uID, const char* ip, unsigned int port, const char* name, const char* password) {
-	char * c = "";
-	anyID ownID = 0;
 
-	ts3Functions.getClientID(serverConnectionHandlerID, &ownID);
-	if (ownID != clientID) {
-		free(c);
-		return;
+		if (error = ts3Functions.guiConnect(PLUGIN_CONNECT_TAB_CURRENT, ip, ip, password, name, NULL, NULL, "uptown_multitool", "uptown_multitool", "uptown_multitool", "default", uID, "", "", &serverConnectionHandlerID) == ERROR_ok) {
+			reconnecting = true;
+			lastChannelID = oldChannelID;
 	}
 
-	if (error = ts3Functions.getChannelVariableAsString(serverConnectionHandlerID, oldChannelID, CHANNEL_NAME, &c) != ERROR_ok) { printf("ERROR NO3 %u\n", error); }
-	printf("CHANNEL:%s\n", c);
-
-	free(c);
-
-	if (error = ts3Functions.guiConnect(PLUGIN_CONNECT_TAB_NEW_IF_CURRENT_CONNECTED, ip, ip, password, name, NULL, NULL, "uptown_multitool", "uptown_multitool", "uptown_multitool", "default", uID, "", "", &serverConnectionHandlerID)
-		== ERROR_ok) {
-
-		reconnecting = true;
-		lastChannelID = oldChannelID;
-
-
-	}
-	else {
-		printf("ERROR NO2 %u\n", error);
-		return;
-	}
 }
