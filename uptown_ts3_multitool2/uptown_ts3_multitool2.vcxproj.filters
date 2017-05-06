@@ -18,7 +18,13 @@
     <ClCompile Include="plugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ResetFunctions.cpp">
+    <ClCompile Include="reset_functions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\sqlite\sqlite3.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="allowlist_database.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -26,7 +32,13 @@
     <ClInclude Include="plugin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ResetFunctions.h">
+    <ClInclude Include="reset_functions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="allowlist_database.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="allowlist_definitions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

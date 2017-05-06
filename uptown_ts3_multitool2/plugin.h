@@ -39,6 +39,7 @@ extern "C" {
 	PLUGINS_EXPORTDLL void ts3plugin_freeMemory(void* data);
 	PLUGINS_EXPORTDLL int ts3plugin_requestAutoload();
 	PLUGINS_EXPORTDLL void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys);
+	PLUGINS_EXPORTDLL void ts3plugin_initMenus(struct PluginMenuItem*** menuItems, char** menuIcon);
 
 
 	PLUGINS_EXPORTDLL void ts3plugin_onClientMoveMovedEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID moverID, const char* moverName, const char* moverUniqueIdentifier, const char* moveMessage);
@@ -47,6 +48,7 @@ extern "C" {
 	PLUGINS_EXPORTDLL void ts3plugin_onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber);
 	PLUGINS_EXPORTDLL void ts3plugin_onAvatarUpdated(uint64 serverConnectionHandlerID, anyID clientID, const char* path);
 	PLUGINS_EXPORTDLL void ts3plugin_onHotkeyEvent(const char* keyword);
+	PLUGINS_EXPORTDLL void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenuType type, int menuItemID, uint64 selectedItemID);
 
 #ifdef __cplusplus
 }
