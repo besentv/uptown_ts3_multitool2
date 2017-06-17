@@ -24,7 +24,10 @@
     <ClCompile Include="..\include\sqlite\sqlite3.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="allowlist_database.cpp">
+    <ClCompile Include="uptown_definitions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="uptown_database.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -35,10 +38,10 @@
     <ClInclude Include="reset_functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="allowlist_database.h">
+    <ClInclude Include="uptown_database.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="allowlist_definitions.h">
+    <ClInclude Include="uptown_definitions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

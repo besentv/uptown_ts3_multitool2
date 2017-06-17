@@ -16,11 +16,11 @@
 
 #include "plugin.h"
 #include "reset_functions.h"
-#include "allowlist_database.h"
-#include "allowlist_definitions.h"
+#include "uptown_database.h"
+#include "uptown_definitions.h"
 
 #define PLUGIN_API_VERSION 21
-#define PLUGIN_VERSION "Beta 1.6.0"
+#define PLUGIN_VERSION "Beta 1.7.0"
 
 #ifdef _WIN32
 #define _strcpy(dest, destSize, src) strcpy_s(dest, destSize, src)
@@ -30,9 +30,8 @@
 #endif
 
 struct TS3Functions ts3Functions;
-
 static char* pluginID = NULL;
-char* hotkeyStrings[] = { "channel_move", "channel_kick", "server_kick" };
+
 char* password = NULL;
 
 uint64 scHandler = 0;
@@ -42,9 +41,10 @@ uint64 lastChannelID = 0;
 unsigned int error = 0;
 
 bool reconnecting = false;
-bool isAntiChannelKick = true;
-bool isAntiChannelMove = false;
-bool isAntiServerKick = true;
+int isAntiChannelKick = 1;
+int isAntiChannelMove = 0;
+int isAntiServerKick = 1;
+int isChannelDeny = 0;
 
 
 const char* ts3plugin_name() {
@@ -73,7 +73,8 @@ void ts3plugin_setFunctionPointers(const struct TS3Functions funcs) {
 
 int ts3plugin_init() {
 	printf("Uptown: init\n");
-	uptown_initDatabase();
+	uptown_initDatabase("s");
+	getHotkeySettings();
 
 	return 0;
 }
@@ -103,7 +104,7 @@ const char* ts3plugin_commandKeyword() {
 }
 
 const char* ts3plugin_infoTitle() {
-	return "Uptown to save your rights on TeamSpeak 3 Servers.";
+	return "Uptown";
 }
 
 void ts3plugin_freeMemory(void* data) {
@@ -114,10 +115,69 @@ int ts3plugin_requestAutoload() {
 	return 0;
 }
 
-void switchHotkeyStatus(bool *hotkey) {
+void switchHotkeyStatus(int *hotkey) {
+	if (*hotkey == 0) {
+		*hotkey = 1;
 
-	*hotkey = (!(*hotkey));
+	}
+	else if (*hotkey == 1) {
+		*hotkey = 0;
+	}
+	else
+	{
+		*hotkey = 0;
+	}
+}
 
+void getHotkeySettings() {
+	if (database_initialized) {
+		isAntiChannelKick = uptown_hotkeysettings_getHotkeyState(UPTOWN_HOTKEYSTRING_CHANNEL_KICK);
+		isAntiChannelMove = uptown_hotkeysettings_getHotkeyState(UPTOWN_HOTKEYSTRING_CHANNEL_MOVE);
+		isAntiServerKick = uptown_hotkeysettings_getHotkeyState(UPTOWN_HOTKEYSTRING_SERVER_KICK);
+		isChannelDeny = uptown_hotkeysettings_getHotkeyState(UPTOWN_HOTKEYSTRING_CHANNELDENY);
+	}
+}
+
+void ts3plugin_infoData(uint64 serverConnectionHandlerID, uint64 id, enum PluginItemType type, char** data) {
+	char* str;
+	char* UID;
+	char* name = "";
+	int permission;
+	int channeldeny;
+	switch (type) {
+	case PLUGIN_CHANNEL:
+		if (ts3Functions.getChannelVariableAsString(serverConnectionHandlerID, id, CHANNEL_FLAG_DEFAULT, &str) != ERROR_ok) {
+			//printf("Error getting channel name\n");
+			return;
+		}
+		*data = (char*)malloc(INFODATA_BUFSIZE * sizeof(char));
+		snprintf(*data, INFODATA_BUFSIZE, "Channel id is: %llu Channel flag is default %s", id, str);
+		free(str);
+		break;
+	case PLUGIN_CLIENT: {
+		if (database_initialized) {
+			if (ts3Functions.getClientVariableAsString(serverConnectionHandlerID, (anyID)id, CLIENT_NICKNAME, &name) != ERROR_ok) {
+				name = "error";
+			}
+			if (ts3Functions.getClientVariableAsString(serverConnectionHandlerID, (anyID)id, CLIENT_UNIQUE_IDENTIFIER, &UID) == ERROR_ok) {
+				permission = allowlist_getMovePermissionState(UID);
+				channeldeny = channeldeny_existsEntry(UID);
+				*data = (char*)malloc(INFODATA_BUFSIZE * sizeof(char));
+				snprintf(*data, INFODATA_BUFSIZE, "%s's move permission state: \"%s\" - channeldeny state: \"%s\"", name, uptown_getMoverStatusAsString(permission), uptown_getChanneldenyStatusAsString(channeldeny));
+			}
+			free(UID);
+			free(name);
+		}
+		break;
+	}
+	default:
+		data = NULL;  /* Ignore */
+		return;
+	}
+
+	/* Must be allocated in the plugin! */
+	 /* bbCode is supported. HTML is not supported */
+	//ts3Functions.freeMemory(str);
 }
 
 /* Helper function to create a menu item */
@@ -176,7 +236,7 @@ void ts3plugin_initMenus(struct PluginMenuItem*** menuItems, char** menuIcon) {
 
 	BEGIN_CREATE_MENUS(1);  /* IMPORTANT: Number of menu items must be correct! */
 	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CLIENT, MENU_ID_CLIENT_1, "Change move/kick permission state", "1.png");
-	//CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CLIENT, MENU_ID_CLIENT_2, "Client item 2", "");
+	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CLIENT, MENU_ID_CLIENT_2, "Add/remove this client from channeldeny", "");
 	//CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CHANNEL, MENU_ID_CHANNEL_1, "Channel item 1", "1.png");
 	//CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CHANNEL, MENU_ID_CHANNEL_2, "Channel item 2", "2.png");
 	//CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CHANNEL, MENU_ID_CHANNEL_3, "Channel item 3", "3.png");
@@ -229,13 +289,32 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys) {
 	/* Register hotkeys giving a keyword and a description.
 	* The keyword will be later passed to ts3plugin_onHotkeyEvent to identify which hotkey was triggered.
 	* The description is shown in the clients hotkey dialog. */
-	BEGIN_CREATE_HOTKEYS(3);  /* Create 3 hotkeys. Size must be correct for allocating memory. */
-	CREATE_HOTKEY(hotkeyStrings[0], "Anti channel move");
-	CREATE_HOTKEY(hotkeyStrings[1], "Anti channel kick");
-	CREATE_HOTKEY(hotkeyStrings[2], "Anti server kick");
+	BEGIN_CREATE_HOTKEYS(4);  /* Create 3 hotkeys. Size must be correct for allocating memory. */
+	CREATE_HOTKEY(UPTOWN_HOTKEYSTRING_CHANNEL_MOVE, "Anti channel move");
+	CREATE_HOTKEY(UPTOWN_HOTKEYSTRING_CHANNEL_KICK, "Anti channel kick");
+	CREATE_HOTKEY(UPTOWN_HOTKEYSTRING_SERVER_KICK, "Anti server kick");
+	CREATE_HOTKEY(UPTOWN_HOTKEYSTRING_CHANNELDENY, "Channeldeny");
 	END_CREATE_HOTKEYS;
 
 	/* The client will call ts3plugin_freeMemory to release all allocated memory */
+}
+void ts3plugin_onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage) {
+	anyID ownID = 0;
+	uint64 ownChannelID = 0;
+	char *UID;
+	if (ts3Functions.getClientID(serverConnectionHandlerID, &ownID) == ERROR_ok) {
+		if (ts3Functions.getChannelOfClient(serverConnectionHandlerID, ownID, &ownChannelID) == ERROR_ok) {
+			if (newChannelID == ownChannelID && ownID != clientID) {
+				if(isChannelDeny){
+					if (ts3Functions.getClientVariableAsString(serverConnectionHandlerID, clientID, CLIENT_UNIQUE_IDENTIFIER, &UID) == ERROR_ok) {
+						if (channeldeny_existsEntry(UID) == UPTOWN_DATABASE_ENTRY_EXISTS) {
+							ts3Functions.requestClientMove(serverConnectionHandlerID, clientID, oldChannelID, "", "");
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 void ts3plugin_onClientMoveMovedEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID moverID, const char* moverName, const char* moverUniqueIdentifier, const char* moveMessage) {
@@ -341,9 +420,10 @@ void ts3plugin_onHotkeyEvent(const char* keyword) {
 
 	printf("Uptown: HotkeyEvent:%s\n", keyword);
 
-	if (strcmp(keyword, hotkeyStrings[0]) == 0)
+	if (strcmp(keyword, UPTOWN_HOTKEYSTRING_CHANNEL_MOVE) == 0)
 	{
 		switchHotkeyStatus(&isAntiChannelMove);
+		uptown_hotkeysettings_changeHotkeySavedState(UPTOWN_HOTKEYSTRING_CHANNEL_MOVE, isAntiChannelMove);
 		if (isAntiChannelMove) {
 			ts3Functions.printMessageToCurrentTab("\"Anti Channel Move\" enabled.");
 		}
@@ -351,9 +431,10 @@ void ts3plugin_onHotkeyEvent(const char* keyword) {
 			ts3Functions.printMessageToCurrentTab("\"Anti Channel Move\" disabled.");
 		}
 	}
-	if (strcmp(keyword, hotkeyStrings[1]) == 0)
+	if (strcmp(keyword, UPTOWN_HOTKEYSTRING_CHANNEL_KICK) == 0)
 	{
 		switchHotkeyStatus(&isAntiChannelKick);
+		uptown_hotkeysettings_changeHotkeySavedState(UPTOWN_HOTKEYSTRING_CHANNEL_KICK, isAntiChannelKick);
 		if (isAntiChannelKick) {
 			ts3Functions.printMessageToCurrentTab("\"Anti Channel Kick\" enabled.");
 		}
@@ -361,14 +442,26 @@ void ts3plugin_onHotkeyEvent(const char* keyword) {
 			ts3Functions.printMessageToCurrentTab("\"Anti Channel Kick\" disabled.");
 		}
 	}
-	if (strcmp(keyword, hotkeyStrings[2]) == 0)
+	if (strcmp(keyword, UPTOWN_HOTKEYSTRING_SERVER_KICK) == 0)
 	{
 		switchHotkeyStatus(&isAntiServerKick);
+		uptown_hotkeysettings_changeHotkeySavedState(UPTOWN_HOTKEYSTRING_SERVER_KICK, isAntiServerKick);
 		if (isAntiServerKick) {
 			ts3Functions.printMessageToCurrentTab("\"Anti Server Kick\" enabled.");
 		}
 		else {
 			ts3Functions.printMessageToCurrentTab("\"Anti Server Kick\" disabled.");
+		}
+	}
+	if (strcmp(keyword, UPTOWN_HOTKEYSTRING_CHANNELDENY) == 0)
+	{
+		switchHotkeyStatus(&isChannelDeny);
+		uptown_hotkeysettings_changeHotkeySavedState(UPTOWN_HOTKEYSTRING_CHANNELDENY, isChannelDeny);
+		if (isChannelDeny) {
+			ts3Functions.printMessageToCurrentTab("\"Channeldeny\" enabled.");
+		}
+		else {
+			ts3Functions.printMessageToCurrentTab("\"Channeldeny\" disabled.");
 		}
 	}
 }
@@ -425,13 +518,13 @@ void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenu
 				permissionState = allowlist_getMovePermissionState(UID);
 				if (permissionState == UPTOWN_DATABASE_ENTRY_NOT_EXISTING) {
 					allowlist_addEntry(UID, MOVERSTATUS_NEVER_ALLOWED);
-					snprintf(ts3PrintMessage, sizeof ts3PrintMessage, "Uptown: Changed move permission state of UID: '%s' from %d to %d .", UID, permissionState, MOVERSTATUS_NEVER_ALLOWED);
+					snprintf(ts3PrintMessage, sizeof ts3PrintMessage, "Uptown: Changed move permission state of UID: '%s' from '%s' to '%s' .", UID, uptown_getMoverStatusAsString(UPTOWN_DATABASE_ENTRY_NOT_EXISTING), uptown_getMoverStatusAsString(MOVERSTATUS_NEVER_ALLOWED));
 					puts(ts3PrintMessage);
 					ts3Functions.printMessageToCurrentTab(ts3PrintMessage);
 				}
 				else if ((permissionState + 1) < MOVERSTATUS_ENUM_END && permissionState >= MOVERSTATUS_NEVER_ALLOWED) {
 					allowlist_changeMovePermissionState(UID, (permissionState + 1));
-					snprintf(ts3PrintMessage, sizeof ts3PrintMessage, "Uptown: Changed move permission state of UID: '%s' from %d to %d .", UID, permissionState, (permissionState + 1));
+					snprintf(ts3PrintMessage, sizeof ts3PrintMessage, "Uptown: Changed move permission state of UID: '%s' from '%s' to '%s' .", UID, uptown_getMoverStatusAsString(permissionState), uptown_getMoverStatusAsString((permissionState + 1)));
 					puts(ts3PrintMessage);
 					ts3Functions.printMessageToCurrentTab(ts3PrintMessage);
 				}
@@ -445,7 +538,24 @@ void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenu
 			}
 			break;
 		case MENU_ID_CLIENT_2:
-			/* Menu client 2 was triggered */
+			if (database_initialized) {
+				ts3Functions.getClientVariableAsString(serverConnectionHandlerID, selectedItemID, CLIENT_UNIQUE_IDENTIFIER, &UID);
+				int entryState = channeldeny_existsEntry(UID);
+				printf("llll%d\n", entryState);
+				switch (entryState)
+				{
+				case UPTOWN_DATABASE_ENTRY_EXISTS: {
+					channeldeny_removeEntry(UID);
+					break;
+				}
+				case UPTOWN_DATABASE_ENTRY_NOT_EXISTING: {
+					channeldeny_addEntry(UID);
+					break;
+				}
+				default:
+					break;
+				}
+			}
 			break;
 		default:
 			break;
