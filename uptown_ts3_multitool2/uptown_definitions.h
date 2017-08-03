@@ -4,12 +4,20 @@
 
 #define UPTOWN_DATABASE_ENTRY_NOT_EXISTING -100
 #define UPTOWN_DATABASE_ENTRY_EXISTS 100
+#define UPTOWN_DATABASE_FILENAME "uptown_database.db"
 
 enum MoverStatus
 {
 	MOVERSTATUS_NEVER_ALLOWED = 1,
 	MOVERSTATUS_ALWAYS_ALLOWED,
 	MOVERSTATUS_ENUM_END
+};
+
+enum ChanneldenyStatus
+{
+	CHANNELDENY_DISABLED = 0,
+	CHANNELDENY_MOVE,
+	CHANNELDENY_KICK
 };
 
 const char *uptown_getMoverStatusAsString(int status);

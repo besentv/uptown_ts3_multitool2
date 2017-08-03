@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <sstream>
+#include <string>
 
 #include "teamspeak/public_errors.h"
 #include "teamspeak/public_errors_rare.h"
@@ -14,8 +16,7 @@
 #include "plugin.h"
 #include "reset_functions.h"
 
-
-void moveBack(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, const char* moverName) {
+void UptownResetFunctions::moveBack(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, const char* moverName) {
 
 	int result = 0;
 	anyID ownID = 0;
@@ -51,11 +52,11 @@ void moveBack(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChanne
 	}
 
 }
-
-
-void reconnect(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, const char* uID, const char* ip, unsigned int port, const char* name, const char* password) {
-
-		if (error = ts3Functions.guiConnect(PLUGIN_CONNECT_TAB_CURRENT, ip, ip, password, name, NULL, NULL, "uptown_multitool", "uptown_multitool", "uptown_multitool", "default", uID, "", "", &serverConnectionHandlerID) == ERROR_ok) {
+void UptownResetFunctions::reconnect(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, const char* uID, const char* ip, unsigned int port, const char* name, const char* password) {
+	std::stringstream wholeIp;
+	wholeIp << ip << ":" << std::to_string(port);
+	printf("UID in client server kick %s\n", uID);
+	if (error = ts3Functions.guiConnect(PLUGIN_CONNECT_TAB_CURRENT, wholeIp.str().c_str(), wholeIp.str().c_str(), password, name, NULL, NULL, "uptown_multitool", "uptown_multitool", "uptown_multitool", "default", uID, "", "", &serverConnectionHandlerID) == ERROR_ok) {
 			reconnecting = true;
 			lastChannelID = oldChannelID;
 	}
