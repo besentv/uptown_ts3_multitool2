@@ -21,12 +21,12 @@ public:
 	void permaDescription_removeEntry(char *UID);
 	char* permaDescription_getEntry(char *UID);
 
-	UptownDatabase(char* filepath);
+	UptownDatabase(std::string filepath);
 	~UptownDatabase();
 
 private:
 	struct sqlite3 *uptownDatabase;
-	void initDatabase(char *filepath);
+	void initDatabase(std::string filepath);
 	static int hotkeysettings_getHotkeyState_callback(void *ret, int argc, char **argv, char **columnName);
 	static int empty_callback(void *NotUsed, int argc, char **argv, char **azColName);
 	static int allowlist_getMovePermissionState_callback(void *ret, int argc, char **argv, char **columnName);

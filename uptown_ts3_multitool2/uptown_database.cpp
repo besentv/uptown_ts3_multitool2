@@ -8,11 +8,11 @@
 #include <sstream>
 
 #include "sqlite\sqlite3.h"
-#include "uptown_database.h"
-#include "uptown_definitions.h"
+#include "uptown_database.hpp"
+#include "uptown_definitions.hpp"
 
 
-UptownDatabase::UptownDatabase(char *filepath)
+UptownDatabase::UptownDatabase(std::string filepath)
 {
 	initDatabase(filepath);
 }
@@ -26,11 +26,10 @@ int UptownDatabase::empty_callback(void *NotUsed, int argc, char **argv, char **
 	return 0;
 }
 
-void UptownDatabase::initDatabase(char *filepath) {
+void UptownDatabase::initDatabase(std::string filepath) {
 	char *zErrMsg = 0;
 	std::stringstream ALLOWLIST_PATH;
 	std::stringstream sqlcommand2;
-
 	std::stringstream sqlcommand;
 	sqlcommand << "CREATE TABLE IF NOT EXISTS uptown_allowlist (uid TEXT PRIMARY KEY NOT NULL,state INTEGER NOT NULL);";
 	sqlcommand << "CREATE TABLE IF NOT EXISTS uptown_channeldenylist(uid TEXT PRIMARY KEY NOT NULL);";
@@ -53,10 +52,10 @@ void UptownDatabase::initDatabase(char *filepath) {
 		if (sqlite3_exec(uptownDatabase, sqlcommand2.str().c_str(), empty_callback, 0, &zErrMsg) != SQLITE_OK) {
 			printf("Uptown: SQL Error 2:%s\n", zErrMsg);
 		}
-		hotkeysettings_addEntry(UPTOWN_HOTKEYSTRING_CHANNEL_KICK, 1);
-		hotkeysettings_addEntry(UPTOWN_HOTKEYSTRING_CHANNEL_MOVE, 0);
-		hotkeysettings_addEntry(UPTOWN_HOTKEYSTRING_SERVER_KICK, 1);
-		hotkeysettings_addEntry(UPTOWN_HOTKEYSTRING_CHANNELDENY, 0);
+		hotkeysettings_addEntry(UptownDefinitions::HOTKEYSTRING_CHANNEL_KICK, 1);
+		hotkeysettings_addEntry(UptownDefinitions::HOTKEYSTRING_CHANNEL_MOVE, 0);
+		hotkeysettings_addEntry(UptownDefinitions::HOTKEYSTRING_SERVER_KICK, 1);
+		hotkeysettings_addEntry(UptownDefinitions::HOTKEYSTRING_CHANNELDENY, 0);
 	}
 }
 
@@ -208,13 +207,14 @@ int UptownDatabase::hotkeysettings_getHotkeyState_callback(void *ret, int argc, 
 int UptownDatabase::hotkeysettings_getHotkeyState(char *hotkey) {
 	char *errMsg = 0;
 	std::stringstream sqlcommand;
+	int i = 0;
 	int *ret = (int *)malloc(sizeof(int));
 	sqlcommand << "SELECT * FROM uptown_hotkeysettings WHERE hotkey ='" << hotkey << "';";
 	if (sqlite3_exec(uptownDatabase, sqlcommand.str().c_str(), hotkeysettings_getHotkeyState_callback, (void*)ret, &errMsg) != SQLITE_OK) {
 		printf("Uptown: SQL Error 12: %s", errMsg);
 		return -1;
 	}
-	int i = *ret;
+	i = *ret;
 	free(errMsg);
 	free(ret);
 
@@ -273,6 +273,3 @@ char* UptownDatabase::permaDescription_getEntry(char * UID)
 
 	return ret;
 }
-
-
-

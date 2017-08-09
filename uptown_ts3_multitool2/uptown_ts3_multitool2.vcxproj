@@ -17,6 +17,14 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="uptown_ts3_multitool2_linux|Win32">
+      <Configuration>uptown_ts3_multitool2_linux</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="uptown_ts3_multitool2_linux|x64">
+      <Configuration>uptown_ts3_multitool2_linux</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D2548A2E-6D4F-4E2B-BB25-31DED410032F}</ProjectGuid>
@@ -49,6 +57,12 @@
     <PlatformToolset>v141_xp</PlatformToolset>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='uptown_ts3_multitool2_linux|Win32'">
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='uptown_ts3_multitool2_linux|x64'">
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -128,16 +142,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\include\sqlite\sqlite3.c" />
+    <ClCompile Include="uptown.cpp" />
     <ClCompile Include="uptown_database.cpp" />
-    <ClCompile Include="reset_functions.cpp" />
     <ClCompile Include="plugin.cpp" />
     <ClCompile Include="uptown_definitions.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="uptown_definitions.h" />
-    <ClInclude Include="uptown_database.h" />
+    <ClInclude Include="..\include\sqlite\sqlite3.h" />
+    <ClInclude Include="uptown.hpp" />
+    <ClInclude Include="uptown_definitions.hpp" />
+    <ClInclude Include="uptown_database.hpp" />
     <ClInclude Include="plugin.h" />
-    <ClInclude Include="reset_functions.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

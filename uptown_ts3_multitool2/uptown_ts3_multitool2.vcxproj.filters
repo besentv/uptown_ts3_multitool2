@@ -18,9 +18,6 @@
     <ClCompile Include="plugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="reset_functions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\include\sqlite\sqlite3.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -30,18 +27,24 @@
     <ClCompile Include="uptown_database.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="uptown.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="plugin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="reset_functions.h">
+    <ClInclude Include="..\include\sqlite\sqlite3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="uptown_database.h">
+    <ClInclude Include="uptown_database.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="uptown_definitions.h">
+    <ClInclude Include="uptown.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="uptown_definitions.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

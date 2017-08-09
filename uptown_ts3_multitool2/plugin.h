@@ -9,21 +9,9 @@
 #define PLUGINS_EXPORTDLL __attribute__ ((visibility("default")))
 #endif
 
-#define ADRESSES_ARRAY_MAX_SIZE 6
-#define INFODATA_BUFSIZE 512
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-	extern struct TS3Functions ts3Functions;
-	extern unsigned int error;
-	extern bool reconnecting;
-	extern uint64 lastscH;
-	extern uint64 lastChannelID;
-
-	void switchHotkeyStatus(int *hotkey);
-	void getHotkeySettings();
 
 	PLUGINS_EXPORTDLL const char* ts3plugin_name();
 	PLUGINS_EXPORTDLL const char* ts3plugin_version();
