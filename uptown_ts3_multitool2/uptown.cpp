@@ -4,19 +4,23 @@
 #include <iostream>
 
 #include "plugin_definitions.h"
-#include "teamlog\logtypes.h"
-#include "teamspeak\clientlib_publicdefinitions.h"
-#include "teamspeak\public_definitions.h"
-#include "teamspeak\public_errors.h"
-#include "teamspeak\public_errors_rare.h"
-#include "teamspeak\public_rare_definitions.h"
+#include "teamlog/logtypes.h"
+#include "teamspeak/clientlib_publicdefinitions.h"
+#include "teamspeak/public_definitions.h"
+#include "teamspeak/public_errors.h"
+#include "teamspeak/public_errors_rare.h"
+#include "teamspeak/public_rare_definitions.h"
 #include "ts3_functions.h"
 
-#include "uptown_definitions.hpp"
-#include "uptown_database.hpp"
-#include "uptown.hpp"
+#include "uptown_definitions.h"
+#include "uptown_database.h"
+#include "uptown.h"
 
-
+#ifdef _WIN32
+#define _strcpy(dest, destSize, src) strcpy_s(dest, destSize, src)
+#else
+#define _strcpy(dest, destSize, src) { strncpy(dest, src, destSize-1); (dest)[destSize-1] = '\0'; }
+#endif
 
 void Uptown::getHotkeySettings()
 {
@@ -383,7 +387,7 @@ void Uptown::infoData(uint64 serverConnectionHandlerID, uint64 id, PluginItemTyp
 		}
 		infoDataMessage << "Channel id is:" << id << " Channel flag default:" << str << std::endl;
 		*data = (char*)malloc(UPTOWN_INFODATA_BUFSIZE * sizeof(char));
-		strcpy_s(*data, UPTOWN_INFODATA_BUFSIZE, infoDataMessage.str().c_str());
+		_strcpy(*data, UPTOWN_INFODATA_BUFSIZE, infoDataMessage.str().c_str());
 		free(str);
 		break;
 	case PLUGIN_CLIENT: {
@@ -396,7 +400,7 @@ void Uptown::infoData(uint64 serverConnectionHandlerID, uint64 id, PluginItemTyp
 				channeldeny = database->channeldeny_existsEntry(UID);
 				*data = (char*)malloc(UPTOWN_INFODATA_BUFSIZE * sizeof(char));
 				infoDataMessage << name << "'s move permission state: \"" << UptownDefinitions::getMoverStatusAsString(permission) << "\" - channeldeny state: \"" << UptownDefinitions::getChanneldenyStatusAsString(channeldeny) << "\"";
-				strcpy_s(*data, UPTOWN_INFODATA_BUFSIZE, infoDataMessage.str().c_str());
+				_strcpy(*data, UPTOWN_INFODATA_BUFSIZE, infoDataMessage.str().c_str());
 			}
 			free(UID);
 			free(name);

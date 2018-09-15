@@ -7,10 +7,15 @@
 #include <string>
 #include <sstream>
 
-#include "sqlite\sqlite3.h"
-#include "uptown_database.hpp"
-#include "uptown_definitions.hpp"
+#include "sqlite/sqlite3.h"
+#include "uptown_database.h"
+#include "uptown_definitions.h"
 
+#ifdef _WIN32
+#define _strcpy(dest, destSize, src) strcpy_s(dest, destSize, src)
+#else
+#define _strcpy(dest, destSize, src) { strncpy(dest, src, destSize-1); (dest)[destSize-1] = '\0'; }
+#endif
 
 UptownDatabase::UptownDatabase(std::string filepath)
 {
@@ -251,7 +256,7 @@ int UptownDatabase::permadescription_getDescription_callback(void * ret, int arg
 		if (strcmp(columnName[i], "description") == 0) {
 			char **res_str = (char**)ret;
 			*res_str = (char*)realloc(*res_str, sizeof(*res_str));
-			strcpy_s(*res_str, sizeof(char) * 512, argv[i]);
+			_strcpy(*res_str, sizeof(char) * 512, argv[i]);
 			//strcpy(*res_str, argv[i]);
 		}
 		printf("\n");

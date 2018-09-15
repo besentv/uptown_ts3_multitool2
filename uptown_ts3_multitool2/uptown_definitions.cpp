@@ -1,4 +1,4 @@
-#include "uptown_definitions.hpp"
+#include "uptown_definitions.h"
 
 namespace UptownDefinitions {
 	char *HOTKEYSTRING_CHANNEL_MOVE = "channel_move";

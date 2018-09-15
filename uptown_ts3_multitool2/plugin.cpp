@@ -1,19 +1,20 @@
 #include <assert.h>
+#include <string.h>
 #include <string>
 
 #include "plugin_definitions.h"
-#include "teamlog\logtypes.h"
-#include "teamspeak\clientlib_publicdefinitions.h"
-#include "teamspeak\public_definitions.h"
-#include "teamspeak\public_errors.h"
-#include "teamspeak\public_errors_rare.h"
-#include "teamspeak\public_rare_definitions.h"
+#include "teamlog/logtypes.h"
+#include "teamspeak/clientlib_publicdefinitions.h"
+#include "teamspeak/public_definitions.h"
+#include "teamspeak/public_errors.h"
+#include "teamspeak/public_errors_rare.h"
+#include "teamspeak/public_rare_definitions.h"
 #include "ts3_functions.h"
 
 #include "plugin.h"
-#include "uptown_definitions.hpp"
-#include "uptown_database.hpp"
-#include "uptown.hpp"
+#include "uptown_definitions.h"
+#include "uptown_database.h"
+#include "uptown.h"
 
 #ifdef _WIN32
 #define _strcpy(dest, destSize, src) strcpy_s(dest, destSize, src)
