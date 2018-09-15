@@ -11,9 +11,9 @@ SQLITE_DIR := ./include/sqlite
 
 .PHONY: directories
 
-all: directories uptown.so
+all: directories uptown_ts3_multitool.so
 
-uptown.so: $(OBJ_FILES_UPTOWN) $(SQLITE_DIR)/sqlite3.o
+uptown_ts3_multitool.so: $(OBJ_FILES_UPTOWN) $(SQLITE_DIR)/sqlite3.o
 	g++ $(OBJ_FILES_UPTOWN) $(SQLITE_DIR)/sqlite3.o -shared -o $@ #-Wl,--no-undefined
 
 $(OBJ_DIR_UPTOWN)/%.o: $(SRC_DIR_UPTOWN)/%.cpp
