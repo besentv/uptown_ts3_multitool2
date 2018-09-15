@@ -5,6 +5,7 @@
 x64/
 uptown_ts3_multitool2/obj/
 *.o
+release/
 
 # Visual C++ cache files
 *.VC.VC.opendb

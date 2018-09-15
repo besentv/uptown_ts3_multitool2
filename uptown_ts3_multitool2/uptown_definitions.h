@@ -8,7 +8,7 @@
 #define UPTOWN_INFODATA_BUFSIZE 512
 
 #define PLUGIN_API_VERSION 21
-#define PLUGIN_VERSION "Beta 1.8"
+#define PLUGIN_VERSION "Beta 1.8.1"
 
 namespace UptownDefinitions {
 	enum MoverStatus

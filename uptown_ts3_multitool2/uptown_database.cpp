@@ -32,7 +32,7 @@ int UptownDatabase::empty_callback(void *NotUsed, int argc, char **argv, char **
 }
 
 void UptownDatabase::initDatabase(std::string filepath) {
-	char *zErrMsg = 0;
+	char *zErrMsg = NULL;
 	std::stringstream ALLOWLIST_PATH;
 	std::stringstream sqlcommand2;
 	std::stringstream sqlcommand;
@@ -70,33 +70,32 @@ void UptownDatabase::closeDatabase() {
 }
 
 void UptownDatabase::allowlist_addEntry(const char *UID, int moverStatus) {
-	char *errMsg = 0;
+	char *errMsg = NULL;
 	std::stringstream sqlcommand;
 	sqlcommand << "INSERT INTO uptown_allowlist (uid, state) VALUES ('" << UID << "'," << moverStatus << ");";
 	if (sqlite3_exec(uptownDatabase, sqlcommand.str().c_str(), empty_callback, 0, &errMsg) != SQLITE_OK) {
 		printf("Uptown: SQL Error 3:%s\n", errMsg);
 	}
-	free(errMsg);
+
 }
 
 void UptownDatabase::allowlist_removeEntry(const char* UID) {
-	char *errMsg = 0;
+	char *errMsg = NULL;
 	std::stringstream sqlcommand;
 	sqlcommand << "DELETE FROM uptown_allowlist WHERE uid='" << UID << "';";
 	if (sqlite3_exec(uptownDatabase, sqlcommand.str().c_str(), empty_callback, 0, &errMsg) != SQLITE_OK) {
 		printf("Uptown: SQL Error 4:%s\n", errMsg);
 	}
-	free(errMsg);
+
 }
 
 void UptownDatabase::allowlist_changeMovePermissionState(const char* UID, int moverStatus) {
-	char *errMsg = 0;
+	char *errMsg = NULL;
 	std::stringstream sqlCommand;
 	sqlCommand << "UPDATE uptown_allowlist SET state =" << moverStatus << " WHERE uid ='" << UID << "';";
 	if (sqlite3_exec(uptownDatabase, sqlCommand.str().c_str(), empty_callback, 0, &errMsg) != SQLITE_OK) {
 		printf("Uptown: SQL Error 5: %s", errMsg);
 	}
-	free(errMsg);
 }
 
 int UptownDatabase::allowlist_getMovePermissionState_callback(void *ret, int argc, char **argv, char **columnName) {
@@ -114,7 +113,7 @@ int UptownDatabase::allowlist_getMovePermissionState_callback(void *ret, int arg
 
 /*Retruns permission state as they are listed in allowlist_definitions*/
 int UptownDatabase::allowlist_getMovePermissionState(const char *UID) {
-	char *errMsg = 0;
+	char *errMsg = NULL;
 	int *ret = (int *)malloc(sizeof(int));
 	*ret = UPTOWN_DATABASE_ENTRY_NOT_EXISTING;
 	std::stringstream sqlCommand;
@@ -124,30 +123,29 @@ int UptownDatabase::allowlist_getMovePermissionState(const char *UID) {
 		return -1;
 	}
 	int i = *ret;
-	free(errMsg);
+
 	free(ret);
 
 	return i;
 }
 
 void UptownDatabase::channeldeny_addEntry(const char *UID) {
-	char *errMsg = 0;
+	char *errMsg = NULL;
 	std::stringstream sqlcommand;
 	sqlcommand << "INSERT INTO uptown_channeldenylist (uid) VALUES ('" << UID << "')";
 	if (sqlite3_exec(uptownDatabase, sqlcommand.str().c_str(), empty_callback, 0, &errMsg) != SQLITE_OK) {
 		printf("Uptown: SQL Error 7:%s\n", errMsg);
 	}
-	free(errMsg);
 }
 
 void UptownDatabase::channeldeny_removeEntry(const char *UID) {
-	char *errMsg = 0;
+	char *errMsg = NULL;
 	std::stringstream sqlcommand;
 	sqlcommand << "DELETE FROM uptown_channeldenylist WHERE uid='" << UID << "';";
 	if (sqlite3_exec(uptownDatabase, sqlcommand.str().c_str(), empty_callback, 0, &errMsg) != SQLITE_OK) {
 		printf("Uptown: SQL Error 8:%s\n", errMsg);
 	}
-	free(errMsg);
+
 }
 
 int UptownDatabase::channeldeny_existsEntry_callback(void *ret, int argc, char** argv, char **zArgv) {
@@ -156,7 +154,7 @@ int UptownDatabase::channeldeny_existsEntry_callback(void *ret, int argc, char**
 }
 
 int UptownDatabase::channeldeny_existsEntry(const char* UID) {
-	char *errMsg = 0;
+	char *errMsg = NULL;
 	int *ret = (int *)malloc(sizeof(int));
 	*ret = UPTOWN_DATABASE_ENTRY_NOT_EXISTING;
 	std::stringstream sqlCommand;
@@ -166,30 +164,30 @@ int UptownDatabase::channeldeny_existsEntry(const char* UID) {
 		*ret = -1;
 	}
 	int i = *ret;
-	free(errMsg);
+
 	free(ret);
 
 	return i;
 }
 
 void UptownDatabase::hotkeysettings_changeHotkeySavedState(char *hotkey, int state) {
-	char* errMsg = 0;
+	char* errMsg = NULL;
 	std::stringstream sqlCommand;
 	sqlCommand << "UPDATE uptown_hotkeysettings SET enabled = " << state << " WHERE hotkey = '" << hotkey << "'; ";
 	if (sqlite3_exec(uptownDatabase, sqlCommand.str().c_str(), empty_callback, 0, &errMsg) != SQLITE_OK) {
 		printf("Uptown: SQL Error 10: %s\n", errMsg);
 	}
-	free(errMsg);
+
 }
 
 void UptownDatabase::hotkeysettings_addEntry(const char *hotkey, int state) {
-	char *errMsg = 0;
+	char *errMsg = NULL;
 	std::stringstream sqlcommand;
 	sqlcommand << "INSERT INTO uptown_hotkeysettings (hotkey,enabled) VALUES ('" << hotkey << "'," << state << ");";
 	if (sqlite3_exec(uptownDatabase, sqlcommand.str().c_str(), empty_callback, 0, &errMsg) != SQLITE_OK) {
 		printf("Uptown: SQL Error 11:%s\n", errMsg);
 	}
-	free(errMsg);
+
 }
 
 int UptownDatabase::hotkeysettings_getHotkeyState_callback(void *ret, int argc, char **argv, char **columnName) {
@@ -210,7 +208,7 @@ int UptownDatabase::hotkeysettings_getHotkeyState_callback(void *ret, int argc, 
 }
 
 int UptownDatabase::hotkeysettings_getHotkeyState(char *hotkey) {
-	char *errMsg = 0;
+	char *errMsg = NULL;
 	std::stringstream sqlcommand;
 	int i = 0;
 	int *ret = (int *)malloc(sizeof(int));
@@ -220,7 +218,7 @@ int UptownDatabase::hotkeysettings_getHotkeyState(char *hotkey) {
 		return -1;
 	}
 	i = *ret;
-	free(errMsg);
+
 	free(ret);
 
 	return i;
@@ -228,24 +226,24 @@ int UptownDatabase::hotkeysettings_getHotkeyState(char *hotkey) {
 
 void UptownDatabase::permaDescription_addEntry(char * UID, char * desc)
 {
-	char *errMsg = 0;
+	char *errMsg = NULL;
 	std::stringstream sqlcommand;
 	sqlcommand << "INSERT INTO uptown_permadescription (uid, soundfileuri) VALUES ('" << UID << "','" << desc << "');";
 	if (sqlite3_exec(uptownDatabase, sqlcommand.str().c_str(), empty_callback, 0, &errMsg) != SQLITE_OK) {
 		printf("Uptown: SQL Error 13:%s\n", errMsg);
 	}
-	free(errMsg);
+
 }
 
 void UptownDatabase::permaDescription_removeEntry(char * UID)
 {
-	char *errMsg = 0;
+	char *errMsg = NULL;
 	std::stringstream sqlcommand;
 	sqlcommand << "DELETE FROM uptown_permadescription WHERE uid='" << UID << "';";
 	if (sqlite3_exec(uptownDatabase, sqlcommand.str().c_str(), empty_callback, 0, &errMsg) != SQLITE_OK) {
 		printf("Uptown: SQL Error 14:%s\n", errMsg);
 	}
-	free(errMsg);
+
 }
 
 int UptownDatabase::permadescription_getDescription_callback(void * ret, int argc, char ** argv, char ** columnName)
