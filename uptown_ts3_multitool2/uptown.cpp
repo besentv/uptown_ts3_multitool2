@@ -246,8 +246,8 @@ void Uptown::onClientKickFromServerEvent(uint64 serverConnectionHandlerID, anyID
 	char password[UPTOWN_INFODATA_BUFSIZE] = { '\0' };
 	char ip[UPTOWN_INFODATA_BUFSIZE] = { '\0' };
 	unsigned short port = 0;
-	char *uID = NULL;
-	char *ownName = NULL;
+	char *uID = 0;
+	char *ownName = 0;
 	anyID ownID;
 
 	if (antiServerKickHotkeyState) {
@@ -374,9 +374,9 @@ void Uptown::onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int ne
 
 void Uptown::infoData(uint64 serverConnectionHandlerID, uint64 id, PluginItemType type, char ** data)
 {
-	char* str;
-	char* UID;
-	char* name = "";
+	char* str = NULL;
+	char* UID = NULL;
+	char* name = NULL;
 	int permission;
 	int channeldeny;
 	std::stringstream infoDataMessage;
