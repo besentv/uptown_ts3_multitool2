@@ -296,7 +296,7 @@ void Uptown::onMenuItemEvent(uint64 serverConnectionHandlerID, PluginMenuType ty
 		switch (menuItemID) {
 		case UptownDefinitions::MENU_ID_CLIENT_1:
 			if (database->database_initialized) {
-				ts3Functions.getClientVariableAsString(serverConnectionHandlerID, selectedItemID, CLIENT_UNIQUE_IDENTIFIER, &UID);
+				ts3Functions.getClientVariableAsString(serverConnectionHandlerID, (anyID) selectedItemID, CLIENT_UNIQUE_IDENTIFIER, &UID);
 				entryState = database->allowlist_getMovePermissionState(UID);
 				if (entryState == UPTOWN_DATABASE_ENTRY_NOT_EXISTING) {
 					database->allowlist_addEntry(UID, UptownDefinitions::MOVERSTATUS_NEVER_ALLOWED);
@@ -318,7 +318,7 @@ void Uptown::onMenuItemEvent(uint64 serverConnectionHandlerID, PluginMenuType ty
 			break;
 		case UptownDefinitions::MENU_ID_CLIENT_2:
 			if (database->database_initialized) {
-				ts3Functions.getClientVariableAsString(serverConnectionHandlerID, selectedItemID, CLIENT_UNIQUE_IDENTIFIER, &UID);
+				ts3Functions.getClientVariableAsString(serverConnectionHandlerID, (anyID) selectedItemID, CLIENT_UNIQUE_IDENTIFIER, &UID);
 				entryState = database->channeldeny_existsEntry(UID);
 				switch (entryState)
 				{

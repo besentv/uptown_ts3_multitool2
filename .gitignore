@@ -4,6 +4,7 @@
 # Build results
 x64/
 uptown_ts3_multitool2/obj/
+uptown_ts3_multitool2/out/
 *.o
 release/
 

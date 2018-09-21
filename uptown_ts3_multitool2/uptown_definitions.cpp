@@ -29,5 +29,8 @@ namespace UptownDefinitions {
 		else if (status == UPTOWN_DATABASE_ENTRY_NOT_EXISTING) {
 			return "allowed";
 		}
+		else {
+			return "NOT IMPLEMENTED STATUS!";
+		}
 	}
 }
